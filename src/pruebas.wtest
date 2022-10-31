@@ -1,0 +1,10 @@
+import modelo.*
+
+describe "TP integrador" {
+
+	test "testX" {
+
+		assert.fail("Falta implementar")
+
+	}
+}
