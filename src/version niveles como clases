@@ -1,0 +1,189 @@
+class Receta{
+	const property nombre
+	const property ingredientes = []
+	const property nivelDeDificultad
+	
+	method esDificil() = nivelDeDificultad > 5 ||
+		self.cantIngredientes() > 10
+	
+	method cantIngredientes() = ingredientes.size() 
+	
+	method experienciaAportada() = 
+		nivelDeDificultad * self.cantIngredientes()
+}
+
+/// OPCION CON NIVELES DE APRENDIZAJE COMO SUBCLASES DE COCINERO
+
+class Cocinero{
+	const property nombre
+	var property preparaciones = []
+	
+	
+	method nivelDeExperiencia() =
+		preparaciones.sum({comida => comida.calculoExperiencia()})
+		
+	
+	
+	method pasarAlSiguienteNivel()
+	{
+	self.error("implementar")}
+	
+	
+		
+	
+}
+
+class Principiante inherits Cocinero{
+	
+	//implementar en concinero
+	method preparar(receta){
+   			///criterios 
+			
+			if(self.superaNivelDeAprendizaje()){
+				self.pasarAlSiguienteNivel()
+			}
+		}
+	method prepararComida(receta){
+			if(self.puedePreparar(receta)){
+			
+			
+			if(receta.cantIngredientes()<4){
+				
+				preparaciones.add(new ComidaNormal(receta = receta))
+				
+			}else{
+				
+				preparaciones.add(new ComidaNormal(receta = receta))
+			}
+	}
+	
+	
+	
+	///////////////////////////////
+	method superaNivelDeAprendizaje() = 
+		self.nivelDeExperiencia() > 100
+		
+	method puedePreparar(receta)=
+		not receta.esDificil()
+		
+	/////////////////////////////
+}
+
+class Experimentado inherits Cocinero{
+
+	////////////////////////////////////	
+	method superaNivelDeAprendizaje() =
+		preparaciones.count({comida => comida.esDificil()}) > 5
+		
+	method puedePreparar(receta)=
+		not receta.esDificil()
+	///////////////////////////////////
+	
+	
+	//implementar en concinero	
+	method preparar(receta){
+		
+		if(self.perfeccionar(receta)){
+			
+			preparaciones.add(new ComidaSuperior(receta=receta, plus = self.cantComidasSimilares(receta)/10))
+		}else{
+			
+			preparaciones.add(new ComidaNormal(receta=receta))
+		}
+	}
+	
+	//implementar en concinero
+	method existePreparacionSimilar(receta) =
+		preparaciones.any({comida => comida.ingredientes() == receta.ingredientes() ||
+			(comida.nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
+	
+	//implementar en concinero
+	method cantComidasSimilares(receta) =
+		preparaciones.count({comida => comida.ingredientes() == receta.ingredientes() ||
+			(comida.nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
+		
+	//implementar en cocinero	
+	method perfeccionar(receta)= self.nivelDeExperiencia() == 3*receta.experienciaAportada()
+	
+	
+}
+
+class Chef inherits Cocinero{
+	
+	override method puedePreparar(receta) = true 
+	
+	method superaNivelDeAprendizaje() = false
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+object configurarComidaPobre{
+	
+	var property experienciaMax = 0
+	
+}
+
+
+///está bien que las comidas sean clases porque cada instancia de comida tiene una receta particular
+
+class ComidaPobre{
+	
+	const property receta
+	
+	var property experienciaMax = configurarComidaPobre.experienciaMax()
+	
+	method calculoExperiencia() = receta.experienciaAportada().min(experienciaMax)
+	
+	
+
+}
+
+
+class ComidaSuperior{
+	
+	const property receta
+	
+	var property plus
+	
+	method  calculoExperiencia() = receta.experienciaAportada() + plus
+	 
+}
+
+
+class ComidaNormal{
+	
+	const property receta
+	
+	method calculoExperiencia() = receta.experienciaAportada()
+}
+
+
+
+
+class RecetaGourmet inherits Receta{
+	
+	override method experienciaAportada() = super() * 3
+	
+	override method esDificil() = true 
+	
+	
+}
+
+
+
+object academia{
+	
+	
+	const property estudiantes = []
+	
+	const property recetario = []
+	
+	method agregarEstudiante(){}
+	
+	method entrenarEstudiantes(){
+		
+		estudiantes.max({})
+		
+	}
+	
+}
