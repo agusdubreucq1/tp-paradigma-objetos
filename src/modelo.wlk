@@ -1,5 +1,4 @@
 class Receta{
-	const property nombre
 	const property ingredientes = []
 	const property nivelDeDificultad
 	
@@ -17,9 +16,6 @@ class Receta{
 // OPCION CON NIVELES DE APRENDIZAJE COMO OBJETOS
 
 class Cocinero{
-	
-	const property nombre
-	
 	var property preparaciones = []
 	
 	var property nivelDeAprendizaje  /*principiante | experto | chef */
@@ -44,7 +40,7 @@ class Cocinero{
 	
 	method pasarAlSiguienteNivel()
 	{
-	self.error("implementar")}
+	nivelDeAprendizaje = nivelDeAprendizaje.siguienteNivel()}
 	
 	
 	
@@ -69,6 +65,8 @@ class Cocinero{
 
 object principiante{
 	
+	var property siguienteNivel = experimentado
+	
 	
 	method realizarPreparacion(receta,cocinero){ 
 		 //otra variante es que el objeto principiante tenga un metodo calidadPreparacion() y retorne el objeto normal/superior/pobre si estos se modelan así
@@ -86,7 +84,10 @@ object principiante{
 				return new ComidaNormal(receta = receta)
 			}
 			
-		} //return new Error /* implementar error */
+		}else{
+			throw new PreparacionFallida(message="preparacion fallida")
+		}
+		
 		
 		}
 			
@@ -105,11 +106,13 @@ object principiante{
 
 object experimentado{
 	
+	var property siguienteNivel = chef
+	
 	/* solcuciono mandandose a sí mismo en la clase cocinero */
 
 	////////////////////////////////////	
 	method superaNivelDeAprendizaje(cocinero) =
-		cocinero.preparaciones.count({comida => comida.receta.esDificil()}) > 5
+		cocinero.preparaciones().count({comida => comida.receta().esDificil()}) > 5
 		
 		
 	method puedePreparar(receta)=
@@ -180,8 +183,6 @@ class ComidaPobre{
 	
 	method calculoExperiencia() = receta.experienciaAportada().min(experienciaMax)
 	
-	
-
 }
 
 
@@ -224,7 +225,9 @@ object academia{
 	
 	const property recetario = []
 	
-	method agregarEstudiante(){}
+	method agregarEstudiante(estudiante){
+		estudiantes.add(estudiante)
+	}
 	
 	method entrenarEstudiantes(){
 		
@@ -232,4 +235,9 @@ object academia{
 	}
 	
 }
+
+////////////////////////////////ERRORES////////////
+
+class PreparacionFallida inherits DomainException{}
+
 
