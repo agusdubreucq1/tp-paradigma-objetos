@@ -45,6 +45,7 @@ class Cocinero{
 	
 	
 	method laComidaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta)}).max({receta=>receta.experienciaAportada()})
+	//se podria romper con un recetario vacio, pero nose si hay q manejar ese error
 	
 	
 	//implementar en concinero
@@ -231,7 +232,7 @@ object academia{
 	
 	method entrenarEstudiantes(){
 		
-		estudiantes.forEach({estudiante=>estudiante.preparar(estudiante.laComidaQueMasExperienciaLeAporta(recetario))})
+		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laComidaQueMasExperienciaLeAporta(recetario))})
 	}
 	
 }
