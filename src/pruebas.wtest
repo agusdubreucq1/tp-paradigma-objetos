@@ -1,8 +1,103 @@
 import modelo.*
 
+
+	const recetaPasta = new Receta(ingredientes=['fideos','salsa','parmesano'], nivelDeDificultad = 1/3)
+	
+	const recetaPizza = new Receta(ingredientes=['masaMadre','salsa','queso&oregano'],nivelDeDificultad = 1/3)
+	
+	const recetaHamburguesa = new Receta(ingredientes=['discoDeCarne','pan','aderezoEspecial'],nivelDeDificultad = 1/3)
+	
+	const recetaPastaItaliana = new Receta(ingredientes=['spaguetti','pesto','parmesano'],nivelDeDificultad = 1/3)
+	
+	const recetaOjoDeBifeConPapas =  new Receta(ingredientes=['ojoDeBife','romero','papas','salMarina','ajo'],nivelDeDificultad = 1/3)
+	
+	
 describe "TP integrador" {
 
-	test "testX" {
+	test "Un cocinero experimentado al preparar una receta que puede perfeccionar, la agrega a su lista de preparaciones con calidad superior" {
+		
+		//dadas 3 preparaciones iniciales, la experiencia acumulada del cocinero debe ser el triple de la experiencia que aporta una receta para que el cocinero la pueda perfeccionar
+		
+		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=normal, experienciaQueAporta = recetaPastaItaliana.experienciaAportada())
+	
+		const pizzaNormal = new Comida(receta=recetaPizza, calidadComida=normal, experienciaQueAporta =  recetaPastaItaliana.experienciaAportada())
+	
+		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal, experienciaQueAporta = recetaPastaItaliana.experienciaAportada())
+		
+		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = experimentado) 
+		
+		pedro.preparar(recetaPastaItaliana)
+
+			assert.that(pedro.preparoReceta(recetaPastaItaliana) && pedro.preparaciones().find({comida=>comida.receta()==recetaPastaItaliana}).calidadComida()==superior)
+		
+
+	}
+
+	test "Un chef al preparar una receta que puede perfeccionar, agrega la comida con un plus en su experiencia aportada" {
+		
+		//dadas 3 preparaciones iniciales, la experiencia acumulada del cocinero debe ser el triple de la experiencia que aporta una receta para que el cocinero la pueda perfeccionar
+	
+		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=normal, experienciaQueAporta = recetaOjoDeBifeConPapas.experienciaAportada())
+	
+		const pizzaNormal = new Comida(receta=recetaPizza, calidadComida=normal, experienciaQueAporta =  recetaOjoDeBifeConPapas.experienciaAportada())
+	
+		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal, experienciaQueAporta = recetaOjoDeBifeConPapas.experienciaAportada())
+	
+		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal,hamburguesaNormal], nivelDeAprendizaje = chef) 	
+	
+		const experienciaQueAportaOjoDeBifeSuperior = superior.calculoPlus(pedro,recetaOjoDeBifeConPapas) + recetaOjoDeBifeConPapas.experienciaAportada()
+	
+		pedro.preparar(recetaOjoDeBifeConPapas)
+	
+			assert.equals(pedro.experienciaQueLeAporto(recetaOjoDeBifeConPapas),experienciaQueAportaOjoDeBifeSuperior)
+
+	}		
+
+	
+	test "Un cocinero experimentado al preparar una receta que puede perfeccionar, agrega la comida con un plus en su experiencia aportada" {
+		//dadas 3 preparaciones iniciales, la experiencia acumulada del cocinero debe ser el triple de la experiencia que aporta una receta para que el cocinero la pueda perfeccionar
+	
+		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=normal, experienciaQueAporta = recetaPastaItaliana.experienciaAportada())
+	
+		const pizzaNormal = new Comida(receta=recetaPizza, calidadComida=normal, experienciaQueAporta =  recetaPastaItaliana.experienciaAportada())
+	
+		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal, experienciaQueAporta = recetaPastaItaliana.experienciaAportada())
+	
+		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = experimentado)
+
+		const experienciaQueAportaPastaItaliana = superior.calculoPlus(pedro,recetaPastaItaliana) + recetaPastaItaliana.experienciaAportada()
+		
+		pedro.preparar(recetaPastaItaliana)
+	
+			assert.equals(pedro.experienciaQueLeAporto(recetaPastaItaliana),experienciaQueAportaPastaItaliana)
+
+	}	
+	
+	test "Dado un chef con 2 preparaciones distintas que puede perfeccionar, cada preparacion perfeccionada tiene asignado la experienciaQueLeAporto correspondiente" {
+		
+		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=normal, experienciaQueAporta = recetaOjoDeBifeConPapas.experienciaAportada())
+	
+		const pizzaNormal = new Comida(receta=recetaPizza, calidadComida=normal, experienciaQueAporta =  recetaOjoDeBifeConPapas.experienciaAportada())
+	
+		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal, experienciaQueAporta = recetaOjoDeBifeConPapas.experienciaAportada())
+	
+		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal,hamburguesaNormal], nivelDeAprendizaje = chef) 	
+		
+		const experienciaQueAportaOjoDeBifeSuperior = superior.calculoPlus(pedro,recetaOjoDeBifeConPapas) + recetaOjoDeBifeConPapas.experienciaAportada()
+	
+		pedro.preparar(recetaOjoDeBifeConPapas)
+		
+		const recetaPastaItaliana = new Receta(ingredientes=['spaguetti','pesto','parmesano'], nivelDeDificultad= (3* recetaOjoDeBifeConPapas.experienciaAportada() + experienciaQueAportaOjoDeBifeSuperior)/3)
+		
+		const experienciaQueAportaPastaItalianaSuperior = superior.calculoPlus(pedro,recetaPastaItaliana) + recetaPastaItaliana.experienciaAportada()
+		
+		pedro.preparar(recetaPastaItaliana)
+		
+			assert.that(pedro.experienciaQueLeAporto(recetaOjoDeBifeConPapas)==experienciaQueAportaOjoDeBifeSuperior && pedro.experienciaQueLeAporto(recetaPastaItaliana)==experienciaQueAportaPastaItalianaSuperior)
+
+	}
+
+	test "testXx" {
 
 		assert.fail("Falta implementar")
 
