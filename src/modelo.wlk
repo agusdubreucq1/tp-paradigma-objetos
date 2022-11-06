@@ -249,9 +249,9 @@ class RecetaGourmet inherits Receta{
 object academia{
 	
 	
-	const property estudiantes = []
+	var property estudiantes = []
 	
-	const property recetario = []
+	var property recetario = []
 	
 	method agregarEstudiante(estudiante){
 		estudiantes.add(estudiante)
