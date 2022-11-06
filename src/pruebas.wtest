@@ -102,6 +102,56 @@ describe "TP integrador" {
 		pedro.preparar(recetaPastaItaliana)
 		
 			assert.that(pedro.experienciaQueLeAporto(recetaOjoDeBifeConPapas)==experienciaQueAportaOjoDeBifeSuperior && pedro.experienciaQueLeAporto(recetaPastaItaliana)==experienciaQueAportaPastaItalianaSuperior)
+	}
+	
+//// Punto-4
+
+	test "Las Recetas Gourmet aportan el doble de experiencia que el resto de recetas"{
+		
+		const recetaPastaGourmet = new RecetaGourmet(ingredientes=['fideos','salsa','parmesano'], nivelDeDificultad = 1/3)	
+		
+		assert.equals(recetaPasta.experienciaAportada() * 3, recetaPastaGourmet.experienciaAportada())	
+	}
+
+	test "Las Recetas Gourmet siempre son dificiles"{
+		
+		const recetaPastaItalianaGourmet = new RecetaGourmet(ingredientes=['spaguetti','pesto','parmesano'],nivelDeDificultad = 1/3)
+		
+		assert.that(recetaPastaItalianaGourmet.esDificil())
+		
+	}
+	
+/// Punto-5
+	test "Cuando la Academia de Cocina entrena  a sus estudiantes, cada estudiante prepara la receta que más experiencia le aporta de aquellas que puede preparar del Recetario disponible"{
+		
+		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=normal)
+		const pizzaNormal = new Comida(receta=recetaPizza, calidadComida=normal)	
+		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal)
+		
+		
+		const juan = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = experimentado)
+		const luis = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = experimentado)
+		const nicolas = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = chef)
+		const lucas = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = chef)		
+		
+		const recetarioA = [recetaPasta, recetaPizza, recetaHamburguesa, recetaPastaItaliana, recetaOjoDeBifeConPapas]
+		academia.recetario(recetarioA)
+		
+		const recetaQueMasLeAportaAjuan = juan.laRecetaQueMasExperienciaLeAporta(recetarioA)
+		const recetaQueMasLeAportaAluis = luis.laRecetaQueMasExperienciaLeAporta(recetarioA)
+		const recetaQueMasLeAportaAnicolas = nicolas.laRecetaQueMasExperienciaLeAporta(recetarioA)
+		const recetaQueMasLeAportaAlucas = lucas.laRecetaQueMasExperienciaLeAporta(recetarioA)
+		
+		const estudiantesA = [juan, luis, nicolas, lucas]
+		academia.estudiantes(estudiantesA)
+		
+		academia.entrenarEstudiantes()
+		
+		//las preparaciones son una lista de comidas. Como estan ordenadas, verifico que la ultima comida tenga la receta que mas experiencia le aporta al cocinero
+		assert.equals(juan.preparaciones().last().receta(),recetaQueMasLeAportaAjuan)
+		assert.equals(luis.preparaciones().last().receta(),recetaQueMasLeAportaAluis)
+		assert.equals(nicolas.preparaciones().last().receta(),recetaQueMasLeAportaAnicolas)
+		assert.equals(lucas.preparaciones().last().receta(),recetaQueMasLeAportaAlucas)
 
 	}
 
@@ -173,6 +223,7 @@ describe "TP integrador" {
 	test "testXx" {
 
 		assert.fail("Falta implementar")
+
 
 	}
 }

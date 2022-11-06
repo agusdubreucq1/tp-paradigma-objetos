@@ -2,11 +2,10 @@
 
 Integrantes:
 
-- **Completar con nombre y apellido**
-- **Completar con nombre y apellido**
-- **Completar con nombre y apellido**
-- **Completar con nombre y apellido**
-- **Completar con nombre y apellido**
+- Ernestina Kerbs
+- Nicolas Klaver
+- Agustin Dubreucq
+- Jasson A. M. Rodriguez
 
 ## Consignas
 

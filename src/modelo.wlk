@@ -106,17 +106,19 @@ class Cocinero{
 	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta)}).max({receta=>receta.experienciaAportada()})
 	//se podria romper con un recetario vacio, pero nose si hay q manejar ese error //sí 
 	
-	method realizoPreparacionSimilar(receta) =
-		preparaciones.any({comida => comida.receta().ingredientes() == receta.ingredientes() ||
+	method preparacionesSimilares(receta) =
+		preparaciones.filter({comida => comida.receta().ingredientes() == receta.ingredientes() ||
 			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
 	
+	method realizoPreparacionSimilar(receta) = self.preparacionesSimilares(receta).size() > 0
 	
-	method cantPreparacionesSimilares(receta) =
-		preparaciones.count({comida => comida.receta().ingredientes() == receta.ingredientes() ||
-			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
+	method cantPreparacionesSimilares(receta) = self.preparacionesSimilares(receta).size()
 		
+	method experienciaAdquiridaPreparacionesSimilares(receta) = self.preparacionesSimilares(receta).sum({preparacionSimilar => preparacionSimilar.receta().experienciaAportada()}).roundUp()
 	
-	method perfeccionar(receta)= self.nivelDeExperiencia().roundUp() == 3*receta.experienciaAportada().roundUp()
+
+	method perfeccionar(receta)= self.experienciaAdquiridaPreparacionesSimilares(receta) >= 3*receta.experienciaAportada().roundUp()
+
 		
 	/*Para PERFECCIONAR una receta el cocinero -->debe haber adquirido suficiente experiencia preparando
 	comidas con recetas similares a ella <--. La cantidad de experiencia requerida para perfeccionar la
@@ -321,9 +323,9 @@ class RecetaGourmet inherits Receta{
 object academia{
 	
 	
-	const property estudiantes = []
+	var property estudiantes = []
 	
-	const property recetario = []
+	var property recetario = []
 	
 	method agregarEstudiante(estudiante){
 		estudiantes.add(estudiante)
