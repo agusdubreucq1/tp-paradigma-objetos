@@ -1,7 +1,43 @@
 
+/*
+ * Cocineros:
+ * 				-preparan una receta --> (instancian una nueva comida) y la agregan a su lista de preparaciones
+ * 				-pasan de nivel
+ * 
+ * Objetos que refieren al nivelDeAprendizaje (principiante - experimentado - chef):
+ *
+ * 				-determinan si el cocinero puede o no preparar una receta y con qué calidad
+ * 					(*)si la calidad es superior tambien se encarga de configurar el plus correspondiente para asignarle a la comida, el cual queda momentaneamente almacenado en superior.configuracionPlus()
+ * 					(*)luego el cocinero instancia la comida asignandole a su atributo: plus = calidad.configuracionPlus()
+ * 				-determinan si el cocinero puede o no pasar de nivel y a cuál
+ * 
+ * Objetos que refieren a la calidadComida (pobre - normal -superior):
+ * 
+ * 				-se encargan de calcular la experiencia que le aporta al cocinero preparar una comida según: la experiecia que aporta la receta y el plus de la comida o la experiencia max de la calidad
+ * 				-por defecto su atributo configuracionPlus() = 0 (solo a la calidad superior se le configura uno particular) ver --> (*) 
+ * 
+ * 
+ * Comidas: 
+ * 
+ * 				-sus instancias refieren a recetas preparadas por los cocineros 
+ * 				-tienen una calidad, un plus y una receta
+ * 				-aportan una experiencia que se obtiene mediante el cálculo que indique su calidad
+ * 
+ * Recetas:
+ * 				-tienen una lista de ingredientes, un nivel de dificultad y un calculo para su experienciaAportada, entre otros métodos de consulta
+ */
+
+
+//CLASES-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 class Receta{
+	
+	//ATRIBUTOS 
+	
 	const property ingredientes = []
 	const property nivelDeDificultad
+	
+	//MÉTODOS DE CONSULTA
 	
 	method esDificil() = nivelDeDificultad > 5 ||
 		self.cantIngredientes() > 10
@@ -9,11 +45,13 @@ class Receta{
 	method cantIngredientes() = ingredientes.size() 
 	
 	method experienciaAportada() = 
-		nivelDeDificultad * self.cantIngredientes()
+		nivelDeDificultad * self.cantIngredientes().roundUp()
 }
 
 
 class Cocinero{
+	
+	//ATRIBUTOS 
 	
 	var property preparaciones = []   /* lista de comidas */
 	
@@ -22,7 +60,8 @@ class Cocinero{
 	
 	/// MÉTODOS PARA TESTS ///
 	
-	method preparoReceta(receta) = preparaciones.any({comida=>comida.receta()==receta})  
+	method preparoReceta(receta) = preparaciones.any({comida=>comida.receta()==receta}) 
+	 
 	method experienciaQueLeAporto(receta){
 		
 		if(self.preparoReceta(receta)){
@@ -36,19 +75,18 @@ class Cocinero{
 	//////////////////////////
 	
 	
-	method nivelDeExperiencia() =
-		preparaciones.sum({comida => comida.experienciaQueAporta()})
+	//MÉTODOS CON EFECTO 
 		
 	
 	method preparar(receta){
 		
 		const calidad = nivelDeAprendizaje.calidadComida(receta,self)
 		    			
-   		preparaciones.add(new Comida(receta = receta, calidadComida = calidad, experienciaQueAporta = calidad.calculoExperienciaComida(receta)))
+   		preparaciones.add(new Comida(receta = receta, calidadComida = calidad, plus = calidad.configuracionPlus()))
    		 
    		 /* manejar error en caso de que no se pueda preparar la receta/ el error lo tira el metodo realizarPreparacion(recta) de nivelDeAprendizaje */
 			
-			if(nivelDeAprendizaje.superaNivelDeAprendizaje(self)){
+			if (nivelDeAprendizaje.superaNivelDeAprendizaje(self)) {
 			self.pasarAlSiguienteNivel() /* implementar */
 			}
 			
@@ -60,9 +98,12 @@ class Cocinero{
 	{
 	nivelDeAprendizaje = nivelDeAprendizaje.siguienteNivel()}
 	
+	//MÉTODOS DE CONSULTA
 	
+	method nivelDeExperiencia() =
+		preparaciones.sum({comida => comida.experienciaQueAporta()}).roundUp() 
 	
-	method laComidaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta)}).max({receta=>receta.experienciaAportada()})
+	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta)}).max({receta=>receta.experienciaAportada()})
 	//se podria romper con un recetario vacio, pero nose si hay q manejar ese error //sí 
 	
 	method realizoPreparacionSimilar(receta) =
@@ -75,10 +116,40 @@ class Cocinero{
 			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
 		
 	
-	method perfeccionar(receta)= self.nivelDeExperiencia() == 3*receta.experienciaAportada()
+	method perfeccionar(receta)= self.nivelDeExperiencia().roundUp() == 3*receta.experienciaAportada().roundUp()
 		
+	/*Para PERFECCIONAR una receta el cocinero -->debe haber adquirido suficiente experiencia preparando
+	comidas con recetas similares a ella <--. La cantidad de experiencia requerida para perfeccionar la
+	receta es el triple de la experiencia que aporta (independientemente de cómo le saldría al
+	cocinero). */// hacemos un filter para que sume el nivel de experiencida de solo las comidas con recetas similares????
 	
 }
+
+
+
+class Comida{
+	
+	//ATRIBUTOS 
+	
+	const property receta 
+	
+	const property calidadComida   /* pobre | normal | superior */
+	
+	var property plus = 0
+	
+	//MÉTODOS DE CONSULTA
+	
+	method experienciaQueAporta()  = calidadComida.calculoExperienciaComida(self)
+
+	/* USO:
+	 * 	La instanciacion de una comida implica asignarle una receta, calidad y plus de modo que calidadComida.calculoExperienciaComida(self) pueda ejecutarse sin errores.
+	 *  Solo se le asigna un plus distinto de cero si la comida es instanciada con calidad superior. El valor del plus es manejado entre los objetos "experimentado"/"chef" (los unicos niveles de aprendizaje
+	 *  que pueden instanciar comidas de calidad superior) y "superior" usando el atributo de la calidad "configuracionPlus". 
+	 */
+}
+
+
+// OBJETOS PARA NIVEL DE APRENDIZAJE---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 object principiante{
 	
@@ -90,7 +161,7 @@ object principiante{
 	//MANEJO DE COMIDAS
 	method puedePreparar(receta) = not receta.esDificil()	
 	
-	method calidadPreparacion(receta,cocinero){ 
+	method calidadComida(receta,cocinero){ 
 		
 		if(self.puedePreparar(receta)){
 			
@@ -130,7 +201,9 @@ object experimentado{
 		
 		if(self.puedePreparar(receta) && cocinero.perfeccionar(receta)){
 			
-			superior.plus(superior.calculoPlus(cocinero,receta)) //siempre que se calcule la calidad superior, se actualiza el plus y luego el calculo queda guardado en la clase comida /*ver cocinero.preparar(receta)*/
+			//siempre que se calcule la calidad superior, se actualiza superior.configuracionPlus() para que el cocinero instancie la comida con el atributo "plus" correspondiente
+			
+			superior.configuracionPlus(self.calculoPlus(cocinero,receta)) 
 			
 			return superior
 			
@@ -144,6 +217,8 @@ object experimentado{
 			
 		}
 	}
+
+	method calculoPlus(cocinero,receta) = cocinero.cantPreparacionesSimilares(receta)/10
 
 }
 
@@ -162,9 +237,9 @@ object chef{
 		
 		if(self.puedePreparar(receta) && cocinero.perfeccionar(receta)){
 			
-			///antes de mandarle la calidad le modifico el plus
+			//siempre que se calcule la calidad superior, se actualiza superior.configuracionPlus() para que el cocinero instancie la comida con el atributo "plus" correspondiente
 			
-			superior.plus(superior.calculoPlus(cocinero,receta)) //siempre que se calcule la calidad superior, se actualiza el plus y luego el calculo queda guardado en la clase comida /*ver cocinero.preparar(receta)*/
+			superior.configuracionPlus(self.calculoPlus(cocinero,receta))
 			
 			return superior
 			
@@ -178,64 +253,61 @@ object chef{
 	}
 	
 
-	
+	method calculoPlus(cocinero,receta) = cocinero.cantPreparacionesSimilares(receta)/10	
 	
 }	
 
 
+// OBJETOS PARA CALIDAD DE COMIDAS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class Comida{
-	
-	const property receta 
-	
-	const property calidadComida   /* pobre | normal | superior */
-	
-	const property experienciaQueAporta  
-
-	/* USO:  al instanciar una comida, le asignamos una receta y una calidad. A su vez, se le asigna la experiencia que aporta la comida mediante calidadComida.calculoExperienciaComida(receta)
-	 * 		 ese metodo se encarga de interactuar con la calidadComida, quien hace el calculo de la experiencia interactuando con la receta de la comida y parametros extras
-	  * 
-	  * NOTA: si la comida es superior, la lógica del objeto "experimentado" o "chef" se encarga de asignarle el plus correspondiente al objeto "superior" previo la instanciacion de una comida, 
-	  * asi que todo funciona bien 
-	  * 
-	  * Luego, para consultar la experiencia que aporta una comida hacemos comida.experienciaQueAporta() lo que retorna el valor constante que se calculó en la instanciacion de la comida.
-	  */
-}
 
 object pobre{
 	
-	var property experienciaMax = configurarComidaPobre.experienciaMax()
+	var property configuracionPlus = 0
 	
-	method calculoExperienciaComida(receta) = receta.experienciaAportada().min(experienciaMax)
+	//MÉTODOS DE CONSULTA
+	
+	method experienciaMax()= configurarCalidadPobre.experienciaMax()
+	
+	//siempre realiza el calculo teniendo en cuenta experienciaMax configurada mediante el objeto configurarCalidadPobre EN EL MOMENTO DE CONSULTA DEL CALCULO
+	method calculoExperienciaComida(comida) = comida.receta().experienciaAportada().min(self.experienciaMax())
 	
 }
 
-object configurarComidaPobre{
+object configurarCalidadPobre{
 	
 	var property experienciaMax = 0
 	
 }
 
+// está bien que sea un object, porque no lo vamos a usar para que recuerde nada, solo queremos que haga el calculo 
+object superior{ 
 
-object superior{ // está bien que sea un object, porque no lo vamos a usar para que recuerde nada, solo queremos que haga el calculo 
-
-	var property plus = 0 // el cocinero experimentado/chef se encargan de asignar el plus apropiado 
-
-	method calculoPlus(cocinero,receta)=cocinero.cantPreparacionesSimilares(receta)/10
+	// el cocinero experimentado/chef se encargan de asignar el plus apropiado
+	var property configuracionPlus = 0  
 	
-	method  calculoExperienciaComida(receta) = receta.experienciaAportada() + plus
+	//MÉTODOS DE CONSULTA
+	
+	//siempre realiza el calculo con el atributo "plus" de la comida que se definió al momento de instanciarse --> PARTICULAR PARA CADA COMIDA
+	method  calculoExperienciaComida(comida) = comida.receta().experienciaAportada() + comida.plus()
 }
 
 
 object normal{
 	
-	method calculoExperienciaComida(receta) = receta.experienciaAportada()
+	var property configuracionPlus = 0
+	
+	//MÉTODOS DE CONSULTA
+	
+	method calculoExperienciaComida(comida) = comida.receta().experienciaAportada()
 }
 
-
+// EXTRAS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 class RecetaGourmet inherits Receta{
+	
+	//MÉTODOS DE CONSULTA
 	
 	override method experienciaAportada() = super() * 3
 	
@@ -259,12 +331,12 @@ object academia{
 	
 	method entrenarEstudiantes(){
 		
-		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laComidaQueMasExperienciaLeAporta(recetario))})
+		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
 	}
 	
 }
 
-////////////////////////////////ERRORES////////////
+//CLASES DE ERRORES ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class PreparacionFallida inherits DomainException{}
 
