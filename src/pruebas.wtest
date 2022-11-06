@@ -94,7 +94,20 @@ describe "TP integrador" {
 		pedro.preparar(recetaPastaItaliana)
 		
 			assert.that(pedro.experienciaQueLeAporto(recetaOjoDeBifeConPapas)==experienciaQueAportaOjoDeBifeSuperior && pedro.experienciaQueLeAporto(recetaPastaItaliana)==experienciaQueAportaPastaItalianaSuperior)
+	}
+	test "Las Recetas Gourmet aportan el doble de experiencia que el resto de recetas"{
+		
+		const recetaPastaGourmet = new RecetaGourmet(ingredientes=['fideos','salsa','parmesano'], nivelDeDificultad = 1/3)	
+		
+		assert.equals(recetaPasta.experienciaAportada() * 3, recetaPastaGourmet.experienciaAportada())	
+	}
 
+	test "Las Recetas Gourmet siempre son dificiles"{
+		
+		const recetaPastaItalianaGourmet = new RecetaGourmet(ingredientes=['spaguetti','pesto','parmesano'],nivelDeDificultad = 1/3)
+		
+		assert.that(recetaPastaItalianaGourmet.esDificil())
+		}
 	}
 
 	test "testXx" {
