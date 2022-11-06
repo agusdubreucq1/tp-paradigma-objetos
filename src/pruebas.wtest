@@ -33,7 +33,7 @@ describe "TP integrador" {
 
 	}
 
-	test "Un chef al preparar una receta que puede perfeccionar, agrega la comida con un plus en su experiencia aportada" {
+	test "Un chef al preparar una receta que puede perfeccionar, agrega la comida a su lista de preparaciones con un plus en su experiencia aportada" {
 		
 		//dadas 3 preparaciones iniciales, la experiencia acumulada del cocinero debe ser el triple de la experiencia que aporta una receta para que el cocinero la pueda perfeccionar
 	
@@ -157,7 +157,7 @@ describe "TP integrador" {
 
 
 
-	test "Test sobre el calculo del nivelExperiencia() de un cocinero. Se ponen a prueba comidas con calidad normal y superior + configuracion del plus" {
+	test "Dado un cocinero que preparó dos recetas iguales pero una con calidad normal y otra con superior y plus = 10, se calcula correctamente el nivel de experiencia del cocinero" {
 		
 			/*Por ejemplo, si el cocinero sólo preparó una comida con calidad normal cuya receta tiene 3
 			ingredientes y dificultad 2, y otra comida con la misma receta pero calidad superior y un plus de
@@ -179,14 +179,12 @@ describe "TP integrador" {
 	}
 	
 
-	test "Test sobre la capacidad de configurar la experienciaMax aportada por una comida de calidad pobre" {
+	test "Dado un cocinero con una lista de preparaciones pobres, su nivel de experiencia varía según la configuracion de la experiencia maxima que aportan, en general, las comidas pobres" {
 		
 			/*Si también hubiese preparado dos comidas con esa misma receta pero con calidad pobre, y se
 			configura que como máximo las comidas pobres den 4 puntos de experiencia, la experiencia
 			adquirida por el cocinero sería 3*2 + (3*2 + 10) + 4 + 4 ⇒ 30. Si luego se decidiera ajustar ese
 			valor máximo a 7 puntos, su experiencia sería 3*2 + (3*2 + 10) + 3*2 + 3*2 ⇒ 34 */
-			
-			//para hacer lo que pide la consigna --> cada comida si es superior, se le asigna un plus distinto de cero. La propia comida calcula el nivelDeExperiencia aportado de cada comida llamando calidad.calculo(receta,plus)
 
 		const recetaSandwich = new Receta(ingredientes=['jamon', 'queso','baguette'] ,nivelDeDificultad = 2)	
 		
@@ -218,6 +216,44 @@ describe "TP integrador" {
 		const experienciaDePedroCuandoExpMaxDeCalidadPobreEs0 = pedro.nivelDeExperiencia()			
 			
 		assert.that(experienciaDePedroSinConfigurarExpMax == 22 && experienciaDePedroCuandoExpMaxDeCalidadPobreEs4==30 && experienciaDePedroCuandoExpMaxDeCalidadPobreEs7==34 && experienciaDePedroCuandoExpMaxDeCalidadPobreEs0==22)
+
+	}
+	
+		test "Un cocinero principiante con un nivel de experiencia de 101, pasa de nivel a experimentado" {
+		
+		const pizzaSuperior1 = new Comida (receta = recetaPizza, calidadComida = superior)
+		pizzaSuperior1.plus(49)
+		
+		const pizzaSuperior2 = new Comida (receta = recetaPizza, calidadComida = superior)
+		pizzaSuperior2.plus(49)
+		
+		const pedro = new Cocinero(preparaciones = [pizzaSuperior1, pizzaSuperior2], nivelDeAprendizaje = principiante)
+		
+		//pedro prepara otra pizza --> su nivel de experiencia supera los 100 --> pasa de nivel
+		
+		pedro.preparar(recetaPizza)
+		
+		assert.equals(pedro.nivelDeAprendizaje(), experimentado)
+
+
+	}
+	
+		test "Un cocinero experimentado que preparó 6 comidas dificiles (con nivel de dificultad>5), pasa de nivel a chef" {
+		
+		const recetaDificil = new Receta (ingredientes=["ingrediente"],nivelDeDificultad = 6)
+		
+		const comidaDificil1 = new Comida (receta = recetaDificil ,calidadComida = normal)
+		const comidaDificil2 = new Comida (receta = recetaDificil ,calidadComida = normal)
+		const comidaDificil3 = new Comida (receta = recetaDificil ,calidadComida = normal)
+		const comidaDificil4 = new Comida (receta = recetaDificil ,calidadComida = normal)
+		const comidaDificil5 = new Comida (receta = recetaDificil ,calidadComida = normal)
+		
+		const pedro = new Cocinero (preparaciones = [comidaDificil1,comidaDificil2,comidaDificil3,comidaDificil4,comidaDificil5], nivelDeAprendizaje = experimentado)
+		
+		pedro.preparar(recetaDificil)
+
+		assert.equals(pedro.nivelDeAprendizaje(), chef)
+
 
 	}
 	test "testXx" {

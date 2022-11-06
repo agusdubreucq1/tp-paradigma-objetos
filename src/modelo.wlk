@@ -86,8 +86,8 @@ class Cocinero{
    		 
    		 /* manejar error en caso de que no se pueda preparar la receta/ el error lo tira el metodo realizarPreparacion(recta) de nivelDeAprendizaje */
 			
-			if (nivelDeAprendizaje.superaNivelDeAprendizaje(self)) {
-			self.pasarAlSiguienteNivel() /* implementar */
+			if (self.puedePasarDeNivel()) {
+			self.pasarAlSiguienteNivel() 
 			}
 			
 		}
@@ -103,7 +103,7 @@ class Cocinero{
 	method nivelDeExperiencia() =
 		preparaciones.sum({comida => comida.experienciaQueAporta()}).roundUp() 
 	
-	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta)}).max({receta=>receta.experienciaAportada()})
+	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta,self)}).max({receta=>receta.experienciaAportada()})
 	//se podria romper con un recetario vacio, pero nose si hay q manejar ese error //sí 
 	
 	method preparacionesSimilares(receta) =
@@ -116,6 +116,7 @@ class Cocinero{
 		
 	method experienciaAdquiridaPreparacionesSimilares(receta) = self.preparacionesSimilares(receta).sum({preparacionSimilar => preparacionSimilar.receta().experienciaAportada()}).roundUp()
 	
+	method puedePasarDeNivel() = nivelDeAprendizaje.superaNivelDeAprendizaje(self) //consulta para el cocinero pero en realidad la logica para pasar o no de nivel la maneja el nivelDeAprendizaje
 
 	method perfeccionar(receta)= self.experienciaAdquiridaPreparacionesSimilares(receta) >= 3*receta.experienciaAportada().roundUp()
 
@@ -161,11 +162,11 @@ object principiante{
 	method superaNivelDeAprendizaje(cocinero) = cocinero.nivelDeExperiencia() > 100
 		
 	//MANEJO DE COMIDAS
-	method puedePreparar(receta) = not receta.esDificil()	
+	method puedePreparar(receta,cocinero) = not receta.esDificil()	
 	
 	method calidadComida(receta,cocinero){ 
 		
-		if(self.puedePreparar(receta)){
+		if(self.puedePreparar(receta,cocinero)){
 			
 			
 			if(receta.cantIngredientes()<4){
@@ -197,11 +198,16 @@ object experimentado{
 		cocinero.preparaciones().count({comida => comida.receta().esDificil()}) > 5
 		
 	//MANEJO DE COMIDA
-	method puedePreparar(receta) = not receta.esDificil()
+	
+	/*  pueden preparar recetas que sean similares a alguna que ya hayan
+	preparado (por tener los mismos ingredientes o una dificultad de no más de un punto de
+	diferencia). */  
+	
+	method puedePreparar(receta,cocinero) = cocinero.realizoPreparacionSimilar(receta) || not receta.esDificil()
 
 	method calidadComida(receta,cocinero){
 		
-		if(self.puedePreparar(receta) && cocinero.perfeccionar(receta)){
+		if(self.puedePreparar(receta,cocinero) && cocinero.perfeccionar(receta)){
 			
 			//siempre que se calcule la calidad superior, se actualiza superior.configuracionPlus() para que el cocinero instancie la comida con el atributo "plus" correspondiente
 			
@@ -209,7 +215,7 @@ object experimentado{
 			
 			return superior
 			
-		}else if (self.puedePreparar(receta)){
+		}else if (self.puedePreparar(receta,cocinero)){
 			
 			return normal
 			
@@ -233,11 +239,11 @@ object chef{
 	
 	
 	//MANEJO COMIDA
-	method puedePreparar(receta) = true 
+	method puedePreparar(receta,cocinero) = true 
 	
 	method calidadComida(receta,cocinero){
 		
-		if(self.puedePreparar(receta) && cocinero.perfeccionar(receta)){
+		if(self.puedePreparar(receta,cocinero) && cocinero.perfeccionar(receta)){
 			
 			//siempre que se calcule la calidad superior, se actualiza superior.configuracionPlus() para que el cocinero instancie la comida con el atributo "plus" correspondiente
 			
@@ -245,7 +251,7 @@ object chef{
 			
 			return superior
 			
-		}else if(self.puedePreparar(receta)){
+		}else if(self.puedePreparar(receta,cocinero)){
 			
 			return normal
 		}else{
