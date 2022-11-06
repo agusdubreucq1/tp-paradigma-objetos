@@ -65,17 +65,17 @@ class Cocinero{
 	method laComidaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta)}).max({receta=>receta.experienciaAportada()})
 	//se podria romper con un recetario vacio, pero nose si hay q manejar ese error //sí 
 	
-	method realizoPreparacionSimilar(receta) =
-		preparaciones.any({comida => comida.receta().ingredientes() == receta.ingredientes() ||
+	method recetasSimilares(receta) =
+		preparaciones.filter({comida => comida.receta().ingredientes() == receta.ingredientes() ||
 			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
 	
+	method realizoPreparacionSimilar(receta) = self.recetasSimilares(receta).size() > 0
 	
-	method cantPreparacionesSimilares(receta) =
-		preparaciones.count({comida => comida.receta().ingredientes() == receta.ingredientes() ||
-			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
+	method cantPreparacionesSimilares(receta) = self.recetasSimilares(receta).size()
 		
+	method experienciaAdquiridaRecetasSimilares(receta) = self.recetasSimilares(receta).sum({recetaSimilar => recetaSimilar.experienciaAportada()})
 	
-	method perfeccionar(receta)= self.nivelDeExperiencia() == 3*receta.experienciaAportada()
+	method perfeccionar(receta)= self.experienciaAdquiridaRecetasSimilares(receta) >= 3*receta.experienciaAportada()
 		
 	
 }
