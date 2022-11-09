@@ -104,7 +104,6 @@ class Cocinero{
 		preparaciones.sum({comida => comida.experienciaQueAporta()}).roundUp() 
 	
 	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta,self)}).max({receta=>receta.experienciaAportada()})
-	//se podria romper con un recetario vacio, pero nose si hay q manejar ese error //sí 
 	
 	method preparacionesSimilares(receta) =
 		preparaciones.filter({comida => comida.receta().ingredientes() == receta.ingredientes() ||
@@ -120,11 +119,6 @@ class Cocinero{
 
 	method perfeccionar(receta)= self.experienciaAdquiridaPreparacionesSimilares(receta) >= 3*receta.experienciaAportada().roundUp()
 
-		
-	/*Para PERFECCIONAR una receta el cocinero -->debe haber adquirido suficiente experiencia preparando
-	comidas con recetas similares a ella <--. La cantidad de experiencia requerida para perfeccionar la
-	receta es el triple de la experiencia que aporta (independientemente de cómo le saldría al
-	cocinero). */// hacemos un filter para que sume el nivel de experiencida de solo las comidas con recetas similares????
 	
 }
 
@@ -339,7 +333,12 @@ object academia{
 	
 	method entrenarEstudiantes(){
 		
-		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
+		try{
+			estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
+			}
+		catch e: Exception{
+			self.error("no se pudo entrenar a todos los estudiantes")
+		}
 	}
 	
 }
