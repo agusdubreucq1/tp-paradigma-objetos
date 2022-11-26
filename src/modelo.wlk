@@ -203,7 +203,7 @@ object principiante inherits NivelDeAprendizaje{
 object experimentado inherits NivelDeAprendizaje{
 	
 	//MANEJO DE NIVEL 
-	var property siguienteNivel = chef
+	const property siguienteNivel = chef
 		
 	method superaNivelDeAprendizaje(cocinero) =
 		cocinero.preparaciones().count({comida => comida.receta().esDificil()}) > 5
@@ -223,7 +223,7 @@ object experimentado inherits NivelDeAprendizaje{
 object chef inherits NivelDeAprendizaje{
 	
 	//MANEJO DE NIVEL
-	var property siguienteNivel = self
+	const property siguienteNivel = self
 	
 	method superaNivelDeAprendizaje(cocinero) = false
 	
