@@ -15,10 +15,11 @@ import modelo.*
 describe "TP integrador" {
 	
 	test "la experiencia de un cocinero es la suma de experiencia que le aportan las comidas que preparo"{
-		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=superior, plus=10)
+		
+		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=new Superior(configuracionPlus=10))
 	
 		const pizzaNormal = new Comida(receta=recetaPizza, calidadComida=pobre)
-		configurarCalidadPobre.experienciaMax(5)
+		pobre.experienciaMax(5)
 	
 		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal)
 		
@@ -41,9 +42,20 @@ describe "TP integrador" {
 		
 		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = experimentado) 
 		
+		assert.that(pedro.perfeccionar(recetaPastaItaliana))
+		
+		const  plus = pedro.cantPreparacionesSimilares(recetaPastaItaliana)/10
+		
 		pedro.preparar(recetaPastaItaliana)
 
-			assert.that(pedro.preparoReceta(recetaPastaItaliana) && pedro.preparaciones().find({comida=>comida.receta()==recetaPastaItaliana}).calidadComida()==superior)
+		//si la calidad es superior, se puede comprobar la experiencia aportada por la comida 
+		
+		const experienciaReceta = recetaPastaItaliana.experienciaAportada()
+		
+		const experienciaComida = experienciaReceta + plus
+		
+			assert.that(pedro.preparoReceta(recetaPastaItaliana))
+			assert.equals(pedro.preparaciones().find({comida=>comida.receta()==recetaPastaItaliana}).experienciaQueAporta(),experienciaComida)
 		
 
 	}
@@ -59,8 +71,6 @@ describe "TP integrador" {
 		const hamburguesaNormal = new Comida(receta=recetaHamburguesa, calidadComida=normal)
 	
 		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal,hamburguesaNormal], nivelDeAprendizaje = chef) 	
-	 	
-	 	superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaOjoDeBifeConPapas)/10) //
 	
 		const experienciaQueAportaOjoDeBifeSuperior = chef.calculoPlus(pedro,recetaOjoDeBifeConPapas) + recetaOjoDeBifeConPapas.experienciaAportada()
 	
@@ -72,6 +82,7 @@ describe "TP integrador" {
 
 	
 	test "Un cocinero experimentado al preparar una receta que puede perfeccionar, agrega la comida con un plus en su experiencia aportada" {
+		
 		//dadas 3 preparaciones iniciales, la experiencia acumulada del cocinero debe ser el triple de la experiencia que aporta una receta para que el cocinero la pueda perfeccionar
 	
 		const pastaNormal = new Comida(receta=recetaPasta, calidadComida=normal)
@@ -82,7 +93,7 @@ describe "TP integrador" {
 	
 		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal, hamburguesaNormal], nivelDeAprendizaje = experimentado)
 
-		superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaPastaItaliana)/10)
+		//superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaPastaItaliana)/10)
 		
 		const experienciaQueAportaPastaItaliana = experimentado.calculoPlus(pedro,recetaPastaItaliana) + recetaPastaItaliana.experienciaAportada()
 		
@@ -102,7 +113,7 @@ describe "TP integrador" {
 	
 		const pedro = new Cocinero(preparaciones = [pastaNormal, pizzaNormal,hamburguesaNormal], nivelDeAprendizaje = chef) 	
 		
-		superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaOjoDeBifeConPapas)/10)
+		//superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaOjoDeBifeConPapas)/10)
 		
 		const experienciaQueAportaOjoDeBifeSuperior = chef.calculoPlus(pedro,recetaOjoDeBifeConPapas) + recetaOjoDeBifeConPapas.experienciaAportada()
 	
@@ -110,7 +121,7 @@ describe "TP integrador" {
 		
 		const recetaPastaItaliana = new Receta(ingredientes=['spaguetti','pesto','parmesano'], nivelDeDificultad= (3* recetaOjoDeBifeConPapas.experienciaAportada() + experienciaQueAportaOjoDeBifeSuperior)/3)
 		
-		superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaPastaItaliana)/10)
+		//superior.configuracionPlus(pedro.cantPreparacionesSimilares(recetaPastaItaliana)/10)
 		
 		const experienciaQueAportaPastaItalianaSuperior = chef.calculoPlus(pedro,recetaPastaItaliana) + recetaPastaItaliana.experienciaAportada()
 		
@@ -183,9 +194,9 @@ describe "TP integrador" {
 		
 		const sandwichNormal = new Comida(receta=recetaSandwich, calidadComida=normal)
 		
-		const sandwichSuperior = new Comida(receta=recetaSandwich,calidadComida=superior)
+		const sandwichSuperior = new Comida(receta=recetaSandwich,calidadComida=new Superior(configuracionPlus=10))
 		
-		sandwichSuperior.plus(10)
+		//sandwichSuperior.plus(10)
 		
 		const pedro = new Cocinero(preparaciones = [sandwichNormal,sandwichSuperior],nivelDeAprendizaje = principiante)
 
@@ -205,9 +216,9 @@ describe "TP integrador" {
 		
 		const sandwichNormal = new Comida(receta=recetaSandwich, calidadComida=normal)
 		
-		const sandwichSuperior = new Comida(receta=recetaSandwich,calidadComida=superior)
+		const sandwichSuperior = new Comida(receta=recetaSandwich,calidadComida=new Superior(configuracionPlus=10))
 		
-		sandwichSuperior.plus(10)
+		//sandwichSuperior.plus(10)
 		
 		const sandwichPobre = new Comida(receta=recetaSandwich, calidadComida=pobre) 
 		
@@ -218,29 +229,33 @@ describe "TP integrador" {
 		
 		const experienciaDePedroSinConfigurarExpMax = pedro.nivelDeExperiencia()	
 		
-		configurarCalidadPobre.experienciaMax(4)
+		pobre.experienciaMax(4)
 		
 		const experienciaDePedroCuandoExpMaxDeCalidadPobreEs4 = pedro.nivelDeExperiencia()
 		
-		configurarCalidadPobre.experienciaMax(7)
+		pobre.experienciaMax(7)
 		
 		const experienciaDePedroCuandoExpMaxDeCalidadPobreEs7 = pedro.nivelDeExperiencia()
 		
-		configurarCalidadPobre.experienciaMax(0)
+		pobre.experienciaMax(0)
 		
 		const experienciaDePedroCuandoExpMaxDeCalidadPobreEs0 = pedro.nivelDeExperiencia()			
 			
-		assert.that(experienciaDePedroSinConfigurarExpMax == 22 && experienciaDePedroCuandoExpMaxDeCalidadPobreEs4==30 && experienciaDePedroCuandoExpMaxDeCalidadPobreEs7==34 && experienciaDePedroCuandoExpMaxDeCalidadPobreEs0==22)
-
+		
+		assert.equals(experienciaDePedroSinConfigurarExpMax,22)
+		assert.equals(experienciaDePedroCuandoExpMaxDeCalidadPobreEs4,30)
+		assert.equals(experienciaDePedroCuandoExpMaxDeCalidadPobreEs7,34)
+		assert.equals(experienciaDePedroCuandoExpMaxDeCalidadPobreEs0,22)
+		
 	}
 	
 		test "Un cocinero principiante con un nivel de experiencia de 101, pasa de nivel a experimentado" {
 		
-		const pizzaSuperior1 = new Comida (receta = recetaPizza, calidadComida = superior)
-		pizzaSuperior1.plus(49)
+		const pizzaSuperior1 = new Comida (receta = recetaPizza, calidadComida = new Superior(configuracionPlus=49))
+		//pizzaSuperior1.plus(49)
 		
-		const pizzaSuperior2 = new Comida (receta = recetaPizza, calidadComida = superior)
-		pizzaSuperior2.plus(49)
+		const pizzaSuperior2 = new Comida (receta = recetaPizza, calidadComida =  new Superior(configuracionPlus=49))
+		//pizzaSuperior2.plus(49)
 		
 		const pedro = new Cocinero(preparaciones = [pizzaSuperior1, pizzaSuperior2], nivelDeAprendizaje = principiante)
 		
