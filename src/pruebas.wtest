@@ -11,6 +11,29 @@ import modelo.*
 	
 	const recetaOjoDeBifeConPapas =  new Receta(ingredientes=['ojoDeBife','romero','papas','salMarina','ajo'],nivelDeDificultad = 1/5)
 	
+	object fabrica{
+		method cocineroPrincipiante()= new Cocinero(nivelDeAprendizaje = principiante)
+		
+		method cocineroExperimentado()= new Cocinero(nivelDeAprendizaje = experimentado)
+		
+		method cocineroChef()= new Cocinero(nivelDeAprendizaje = chef)
+		
+		method recetaSimilarIngredientes(receta) = new Receta(ingredientes = receta.ingredientes(), nivelDeDificultad= 1)
+		
+		method recetaSimilarDificultad(receta) = new Receta(ingredientes = ['spaguetti'], nivelDeDificultad= receta.nivelDeDificultad())
+		
+		method recetaDificil()= new Receta(ingredientes = ['spaguetti', 'oregano'], nivelDeDificultad = 6)
+		
+		method comidaNormal(receta) = new Comida(receta=receta, calidadComida = normal)
+		
+		method comidaPobre(receta) = new Comida(receta=receta, calidadComida = pobre)
+		
+		method comidaSuperior(receta) = new Comida(receta=receta, calidadComida =new Superior(configuracionPlus=0))
+		
+		method recetaFacil() = new Receta(ingredientes= ['oregano', 'carne'], nivelDeDificultad = 4)
+		
+	}
+	
 	
 describe "TP integrador" {
 	
@@ -320,5 +343,17 @@ describe "TP integrador" {
 		assert.throwsExceptionWithType(
 			new PreparacionFallida(), {pedro.preparar(recetaDificil)}
 		)
+	}
+	
+	test "un experimentado puede preparar una receta si realizo una similar"
+	{
+		const messi = fabrica.cocineroExperimentado()
+		const recetaFacil = fabrica.recetaFacil()
+		const comidaFacil = fabrica.comidaPobre(recetaFacil)
+		messi.preparaciones([comidaFacil])
+		
+		const recetaSimilar = fabrica.recetaSimilarIngredientes(recetaFacil)
+		
+		assert.that(experimentado.puedePreparar(recetaSimilar, messi))
 	}
 }
