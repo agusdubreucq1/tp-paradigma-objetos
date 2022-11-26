@@ -146,90 +146,8 @@ class Comida{
 
 // OBJETOS PARA NIVEL DE APRENDIZAJE---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-object principiante{
-	
-	///MANEJO DE NIVEL
-	const property siguienteNivel = experimentado
-	
-	method superaNivelDeAprendizaje(cocinero) = cocinero.nivelDeExperiencia() > 100
-		
-	//MANEJO DE COMIDAS
-	method puedePreparar(receta,cocinero) = not receta.esDificil()	
-	
-	method calidadComida(receta,cocinero){ 
-		
-		if(self.puedePreparar(receta,cocinero)){
-			
-			
-			if(receta.cantIngredientes()<4){
-				
-				return normal
-				
-			}else{
-				
-				return pobre
-			}
-			
-			}else{
-				
-				throw new PreparacionFallida(message="el cocinero no puede preparar esa receta")
-				
-			}
-		
-		
-		}
-	
-}
-
-object experimentado{
-	
-	//MANEJO DE NIVEL 
-	var property siguienteNivel = chef
-		
-	method superaNivelDeAprendizaje(cocinero) =
-		cocinero.preparaciones().count({comida => comida.receta().esDificil()}) > 5
-		
-	//MANEJO DE COMIDA
-	
-	/*  pueden preparar recetas que sean similares a alguna que ya hayan
-	preparado (por tener los mismos ingredientes o una dificultad de no más de un punto de
-	diferencia). */  
-	
-	method puedePreparar(receta,cocinero) = cocinero.realizoPreparacionSimilar(receta) || not receta.esDificil()
-
-	method calidadComida(receta,cocinero){
-		
-		if(self.puedePreparar(receta,cocinero) && cocinero.perfeccionar(receta)){
-			
-			//cada receta preparada con calidad superior, tendrá su plus particular.
-			
-			return new Superior(configuracionPlus=self.calculoPlus(cocinero,receta))
-			
-		}else if (self.puedePreparar(receta,cocinero)){
-			
-			return normal
-			
-		}else{
-			
-			throw new PreparacionFallida(message="preparacion fallida")
-			
-		}
-	}
-
-	method calculoPlus(cocinero,receta) = cocinero.cantPreparacionesSimilares(receta)/10
-
-}
-
-object chef{
-	
-	//MANEJO DE NIVEL
-	var property siguienteNivel = self
-	
-	method superaNivelDeAprendizaje(cocinero) = false
-	
-	
-	//MANEJO COMIDA
-	method puedePreparar(receta,cocinero) = true 
+class NivelDeAprendizaje{
+	method puedePreparar(receta, cocinero)= not receta.esDificil()	
 	
 	method calidadComida(receta,cocinero){
 		
@@ -248,6 +166,69 @@ object chef{
 		}
 	}
 	
+}
+
+object principiante inherits NivelDeAprendizaje{
+	
+	///MANEJO DE NIVEL
+	const property siguienteNivel = experimentado
+	
+	method superaNivelDeAprendizaje(cocinero) = cocinero.nivelDeExperiencia() > 100
+		
+	//MANEJO DE COMIDAS
+
+	override method calidadComida(receta,cocinero){ 
+		
+		if(self.puedePreparar(receta,cocinero)){
+			
+			
+			if(receta.cantIngredientes()<4){
+				
+				return normal
+				
+			}else{
+				
+				return pobre
+			}
+			
+			}else{
+				
+				throw new PreparacionFallida(message="el cocinero no puede preparar esa receta")
+				
+			}
+		}
+	
+}
+
+object experimentado inherits NivelDeAprendizaje{
+	
+	//MANEJO DE NIVEL 
+	var property siguienteNivel = chef
+		
+	method superaNivelDeAprendizaje(cocinero) =
+		cocinero.preparaciones().count({comida => comida.receta().esDificil()}) > 5
+		
+	//MANEJO DE COMIDA
+	
+	/*  pueden preparar recetas que sean similares a alguna que ya hayan
+	preparado (por tener los mismos ingredientes o una dificultad de no más de un punto de
+	diferencia). */  
+	
+	override method puedePreparar(receta,cocinero) = cocinero.realizoPreparacionSimilar(receta) || super(receta,cocinero)
+
+	method calculoPlus(cocinero,receta) = cocinero.cantPreparacionesSimilares(receta)/10
+
+}
+
+object chef inherits NivelDeAprendizaje{
+	
+	//MANEJO DE NIVEL
+	var property siguienteNivel = self
+	
+	method superaNivelDeAprendizaje(cocinero) = false
+	
+	//MANEJO COMIDA
+	override method puedePreparar(receta,cocinero) = true 
 
 	method calculoPlus(cocinero,receta) = cocinero.cantPreparacionesSimilares(receta)/10	
 	
