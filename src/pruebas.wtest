@@ -52,6 +52,39 @@ describe "TP integrador" {
 		
 	}
 	
+	test "un principiante no puede preparar una receta dificil"
+	{
+		const recetaDificil = new Receta (ingredientes=["ingrediente"],nivelDeDificultad = 6)
+
+		const pedro = new Cocinero (nivelDeAprendizaje = principiante)
+		
+		assert.throwsExceptionWithType(
+			new PreparacionFallida(), {pedro.preparar(recetaDificil)})
+		
+	}
+	
+	test "un principiante puede preparar una receta facil"{
+		const alberto = fabrica.cocineroPrincipiante()
+		assert.that(alberto.puedeRealizarlo(fabrica.recetaFacil()))
+	}
+	
+	test "la experiencia que aporta una comida pobre es el minimo con la 
+experiencia normal y el valor de experiencia maxima"{
+	const receta = fabrica.recetaDificil()
+	const comidaPobre = fabrica.comidaPobre(receta)
+	pobre.experienciaMax(3)
+	const expEsperada = receta.experienciaAportada().min(3)
+	
+	assert.equals(comidaPobre.experienciaQueAporta(), expEsperada)
+}
+	
+	test "la experiencia de una comida normal es la experiencia de su receta"
+	{
+		const receta = fabrica.recetaDificil()
+		const comidaNormal = fabrica.comidaNormal(receta)
+		assert.equals(comidaNormal.experienciaQueAporta() , receta.experienciaAportada())
+	}
+	
 
 	test "Un cocinero experimentado al preparar una receta que puede perfeccionar, la agrega a su lista de preparaciones con calidad superior" {
 		
@@ -79,7 +112,6 @@ describe "TP integrador" {
 		
 			assert.that(pedro.preparoReceta(recetaPastaItaliana))
 			assert.equals(pedro.preparaciones().find({comida=>comida.receta()==recetaPastaItaliana}).experienciaQueAporta(),experienciaComida)
-		
 
 	}
 
@@ -334,16 +366,7 @@ describe "TP integrador" {
 
 	}
 	
-	test "un principiante no puede preparar una receta dificil"
-	{
-		const recetaDificil = new Receta (ingredientes=["ingrediente"],nivelDeDificultad = 6)
 
-		const pedro = new Cocinero (nivelDeAprendizaje = principiante)
-		
-		assert.throwsExceptionWithType(
-			new PreparacionFallida(), {pedro.preparar(recetaDificil)}
-		)
-	}
 	
 	test "un experimentado puede preparar una receta si realizo una similar"
 	{

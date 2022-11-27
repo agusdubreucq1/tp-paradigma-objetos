@@ -293,7 +293,8 @@ object academia{
 	}
 	
 	method entrenarEstudiantes(){
-		self.puedenPrepararSusRecetasSeleccionadas()
+		if(not self.puedenPrepararSusRecetasSeleccionadas())
+			self.error("el entrenamiento fallo")
 		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
 	}
 	
@@ -306,5 +307,3 @@ object academia{
 //CLASES DE ERRORES ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class PreparacionFallida inherits DomainException{}
-
-
