@@ -120,7 +120,8 @@ class Cocinero{
 	method puedePasarDeNivel() = nivelDeAprendizaje.superaNivelDeAprendizaje(self) //consulta para el cocinero pero en realidad la logica para pasar o no de nivel la maneja el nivelDeAprendizaje
 
 	method perfeccionar(receta)= self.experienciaAdquiridaPreparacionesSimilares(receta) >= 3*receta.experienciaAportada().roundUp()
-
+	
+	method puedeRealizarlo(unaReceta) = nivelDeAprendizaje.puedePreparar(unaReceta, self)
 	
 }
 
@@ -292,15 +293,13 @@ object academia{
 	}
 	
 	method entrenarEstudiantes(){
-		
-		try{
-			estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
-			}
-		catch e: Exception{
-			self.error("no se pudo entrenar a todos los estudiantes")
-		}
+		self.puedenPrepararSusRecetasSeleccionadas()
+		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
 	}
 	
+	method puedenPrepararSusRecetasSeleccionadas(){
+		return estudiantes.all({estudiante => estudiante.puedeRealizarlo(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
+	}
 }
 
 
