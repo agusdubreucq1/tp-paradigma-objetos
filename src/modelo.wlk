@@ -46,6 +46,10 @@ class Receta{
 	
 	method experienciaAportada() = 
 		nivelDeDificultad * self.cantIngredientes().roundUp()
+		
+	method esSimilarA(preparaciones) = 
+		preparaciones.filter({comida => comida.ingredientes() == self.ingredientes() ||
+			(comida.nivelDeDificultad() - self.nivelDeDificultad()).abs() <= 1 })
 }
 
 
@@ -71,7 +75,7 @@ class Cocinero{
 			throw new PreparacionFallida(message="no preparó esa receta")
 		}	
 	
-	
+	}
 	//////////////////////////
 	
 	
@@ -90,7 +94,7 @@ class Cocinero{
 			self.pasarAlSiguienteNivel() 
 			}
 			
-		}
+	}
 		
 	
 	
@@ -105,9 +109,7 @@ class Cocinero{
 	
 	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta,self)}).max({receta=>receta.experienciaAportada()})
 	
-	method preparacionesSimilares(receta) =
-		preparaciones.filter({comida => comida.receta().ingredientes() == receta.ingredientes() ||
-			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
+	method preparacionesSimilares(receta) = receta.esSimilaresA(preparaciones)
 	
 	method realizoPreparacionSimilar(receta) = self.preparacionesSimilares(receta).size() > 0
 	
@@ -137,6 +139,10 @@ class Comida{
 	//MÉTODOS DE CONSULTA
 	
 	method experienciaQueAporta()  = calidadComida.calculoExperienciaComida(self)
+	
+	method ingredientes() = receta.ingredientes()
+	
+	method nivelDeDificultad() = receta.nivelDeDificultad()
 
 	/* USO:
 	 * 	La instanciacion de una comida implica asignarle una receta y una calidad.
