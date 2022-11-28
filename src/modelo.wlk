@@ -44,6 +44,10 @@ class Receta{
 	
 	method experienciaAportada() = 
 		nivelDeDificultad * self.cantIngredientes().roundUp()
+		
+	method esSimilaresA(preparaciones) = 
+		preparaciones.filter({comida => comida.ingredientes() == self.ingredientes() ||
+			(comida.nivelDeDificultad() - self.nivelDeDificultad()).abs() <= 1 })
 }
 
 
@@ -65,12 +69,14 @@ class Cocinero{
 		if(self.preparoReceta(receta)){
 			
 			return preparaciones.find({comida=>comida.receta() == receta}).experienciaQueAporta()
+			
 		}else{
 			throw new PreparacionFallida(message="no preparó esa receta")
 		}	
+
 	}
 	
-	//////////////////////////
+	
 	
 	
 	//MÉTODOS CON EFECTO 
@@ -88,7 +94,7 @@ class Cocinero{
 			self.pasarAlSiguienteNivel() 
 			}
 			
-		}
+	}
 		
 	
 	
@@ -103,9 +109,7 @@ class Cocinero{
 	
 	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta,self)}).max({receta=>receta.experienciaAportada()})
 	
-	method preparacionesSimilares(receta) =
-		preparaciones.filter({comida => comida.receta().ingredientes() == receta.ingredientes() ||
-			(comida.receta().nivelDeDificultad() - receta.nivelDeDificultad()).abs() <= 1 })
+	method preparacionesSimilares(receta) = receta.esSimilaresA(preparaciones)
 	
 	method realizoPreparacionSimilar(receta) = self.preparacionesSimilares(receta).size() > 0
 	
@@ -116,7 +120,8 @@ class Cocinero{
 	method puedePasarDeNivel() = nivelDeAprendizaje.superaNivelDeAprendizaje(self) //consulta para el cocinero pero en realidad la logica para pasar o no de nivel la maneja el nivelDeAprendizaje
 
 	method perfeccionar(receta)= self.experienciaAdquiridaPreparacionesSimilares(receta) >= 3*receta.experienciaAportada().roundUp()
-
+	
+	method puedeRealizarlo(unaReceta) = nivelDeAprendizaje.puedePreparar(unaReceta, self)
 	
 }
 
@@ -135,6 +140,10 @@ class Comida{
 	//MÉTODOS DE CONSULTA
 	
 	method experienciaQueAporta()  = calidadComida.calculoExperienciaComida(self)
+	
+	method ingredientes() = receta.ingredientes()
+	
+	method nivelDeDificultad() = receta.nivelDeDificultad()
 
 	/* USO:
 	 * 	La instanciacion de una comida implica asignarle una receta y una calidad.
@@ -306,20 +315,17 @@ object academia{
 	}
 	
 	method entrenarEstudiantes(){
-		
-		try{
-			estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
-			}
-		catch e: Exception{
-			self.error("no se pudo entrenar a todos los estudiantes")
-		}
+		if(not self.puedenPrepararSusRecetasSeleccionadas())
+			self.error("el entrenamiento fallo")
+		estudiantes.forEach({estudiante => estudiante.preparar(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
 	}
 	
+	method puedenPrepararSusRecetasSeleccionadas(){
+		return estudiantes.all({estudiante => estudiante.puedeRealizarlo(estudiante.laRecetaQueMasExperienciaLeAporta(recetario))})
+	}
 }
 
 
 //CLASES DE ERRORES ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class PreparacionFallida inherits DomainException{}
-
-
