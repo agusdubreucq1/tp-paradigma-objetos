@@ -45,9 +45,9 @@ class Receta{
 	method experienciaAportada() = 
 		nivelDeDificultad * self.cantIngredientes().roundUp()
 		
-	method esSimilaresA(preparaciones) = 
-		preparaciones.filter({comida => comida.ingredientes() == self.ingredientes() ||
-			(comida.nivelDeDificultad() - self.nivelDeDificultad()).abs() <= 1 })
+	method esSimilarA(otraReceta) = 
+		otraReceta.ingredientes() == self.ingredientes() ||
+		(otraReceta.nivelDeDificultad() - self.nivelDeDificultad()).abs() <= 1 
 }
 
 
@@ -109,7 +109,7 @@ class Cocinero{
 	
 	method laRecetaQueMasExperienciaLeAporta(recetario)=recetario.filter({receta=>nivelDeAprendizaje.puedePreparar(receta,self)}).max({receta=>receta.experienciaAportada()})
 	
-	method preparacionesSimilares(receta) = receta.esSimilaresA(preparaciones)
+	method preparacionesSimilares(receta) = preparaciones.filter({comida => receta.esSimilarA(comida.receta())})
 	
 	method realizoPreparacionSimilar(receta) = self.preparacionesSimilares(receta).size() > 0
 	
