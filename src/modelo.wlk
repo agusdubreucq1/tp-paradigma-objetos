@@ -7,14 +7,12 @@
  * Objetos que refieren al nivelDeAprendizaje (principiante - experimentado - chef):
  *
  * 				-determinan si el cocinero puede o no preparar una receta y con qué calidad
- * 					(*)si la calidad es superior tambien se encarga de configurar el plus correspondiente para asignarle a la comida, el cual queda momentaneamente almacenado en superior.configuracionPlus()
- * 					(*)luego el cocinero instancia la comida asignandole a su atributo: plus = calidad.configuracionPlus()
+ * 					(*)si la calidad es superior tambien se encarga de configurar el plus correspondiente para asignarle a la comida
  * 				-determinan si el cocinero puede o no pasar de nivel y a cuál
  * 
  * Objetos que refieren a la calidadComida (pobre - normal -superior):
  * 
  * 				-se encargan de calcular la experiencia que le aporta al cocinero preparar una comida según: la experiecia que aporta la receta y el plus de la comida o la experiencia max de la calidad
- * 				-por defecto su atributo configuracionPlus() = 0 (solo a la calidad superior se le configura uno particular) ver --> (*) 
  * 
  * 
  * Comidas: 
@@ -70,7 +68,7 @@ class Cocinero{
 		}else{
 			throw new PreparacionFallida(message="no preparó esa receta")
 		}	
-	
+	}
 	
 	//////////////////////////
 	
@@ -147,7 +145,29 @@ class Comida{
 // OBJETOS PARA NIVEL DE APRENDIZAJE---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class NivelDeAprendizaje{
+	
+
 	method puedePreparar(receta, cocinero)= not receta.esDificil()	
+	
+	
+	//MANEJO DE COMIDAS
+
+	method calidadComida(receta,cocinero){ 
+		
+		if(self.puedePreparar(receta,cocinero)){
+			
+			return self.asignarCalidad(receta,cocinero)
+			
+		}else{
+				
+				throw new PreparacionFallida(message="el cocinero no puede preparar esa receta")
+				
+			}
+			
+	}
+		
+	method asignarCalidad(receta,cocinero)
+
 }
 
 object principiante inherits NivelDeAprendizaje{
@@ -156,15 +176,11 @@ object principiante inherits NivelDeAprendizaje{
 	const property siguienteNivel = experimentado
 	
 	method superaNivelDeAprendizaje(cocinero) = cocinero.nivelDeExperiencia() > 100
+	
+	override method asignarCalidad(receta,cocinero){
 		
-	//MANEJO DE COMIDAS
-
-	method calidadComida(receta,cocinero){ 
 		
-		if(self.puedePreparar(receta,cocinero)){
-			
-			
-			if(receta.cantIngredientes()<4){
+		if(receta.cantIngredientes()<4){
 				
 				return normal
 				
@@ -173,37 +189,40 @@ object principiante inherits NivelDeAprendizaje{
 				return pobre
 			}
 			
-			}else{
-				
-				throw new PreparacionFallida(message="el cocinero no puede preparar esa receta")
-				
-			}
-		}
+			
+	}
+		
 }
 
 class NivelExperimentado inherits NivelDeAprendizaje{
-	method calidadComida(receta,cocinero){
-		
-		if(self.puedePreparar(receta,cocinero) && cocinero.perfeccionar(receta)){
-			
-			//cada receta preparada con calidad superior, tendrá su plus particular.
-			
-			return  new Superior(configuracionPlus= self.calculoPlus(cocinero,receta))
-			
-		}else if(self.puedePreparar(receta,cocinero)){
-			
-			return normal
-		}else{
-			
-			throw new PreparacionFallida(message="preparacion fallida")
-		}
-	}
+	
+	//MANEJO DE COMIDAS
+
 	
 	method calculoPlus(cocinero,receta) = cocinero.cantPreparacionesSimilares(receta)/10
+	
+	override method asignarCalidad(receta,cocinero){
+		
+		
+		if(cocinero.perfeccionar(receta)){
+				
+				return new Superior(configuracionPlus= self.calculoPlus(cocinero,receta))
+				
+			}else{
+				
+				return normal
+			}
+			
+			
+	}
+	
+	
 }
 
 
 object experimentado inherits NivelExperimentado{
+	
+
 	//MANEJO DE NIVEL 
 	const property siguienteNivel = chef
 		
@@ -211,12 +230,13 @@ object experimentado inherits NivelExperimentado{
 		cocinero.preparaciones().count({comida => comida.receta().esDificil()}) > 5
 		
 	//MANEJO DE COMIDA
-	
 	override method puedePreparar(receta,cocinero) = cocinero.realizoPreparacionSimilar(receta) || super(receta,cocinero)
 
 }
 
 object chef inherits NivelExperimentado{
+	
+
 	//MANEJO DE NIVEL
 	const property siguienteNivel = self
 	
