@@ -32,6 +32,10 @@ import modelo.*
 		
 		method recetaFacil() = new Receta(ingredientes= ['oregano', 'carne'], nivelDeDificultad = 4)
 		
+		method experienciaQueLeAporto(cocinero, receta) = cocinero.preparaciones().find({comida=>comida.receta() == receta}).experienciaQueAporta()
+		
+		method preparoReceta(cocinero, receta)= cocinero.preparaciones().any({comida=>comida.receta()==receta})
+		
 	}
 	
 	
@@ -110,7 +114,7 @@ experiencia normal y el valor de experiencia maxima"{
 		
 		const experienciaComida = experienciaReceta + plus
 		
-			assert.that(pedro.preparoReceta(recetaPastaItaliana))
+			assert.that(fabrica.preparoReceta(pedro, recetaPastaItaliana))
 			assert.equals(pedro.preparaciones().find({comida=>comida.receta()==recetaPastaItaliana}).experienciaQueAporta(),experienciaComida)
 
 	}
@@ -131,7 +135,7 @@ experiencia normal y el valor de experiencia maxima"{
 	
 		pedro.preparar(recetaOjoDeBifeConPapas)
 	
-			assert.equals(pedro.experienciaQueLeAporto(recetaOjoDeBifeConPapas),experienciaQueAportaOjoDeBifeSuperior)
+			assert.equals(fabrica.experienciaQueLeAporto(pedro, recetaOjoDeBifeConPapas),experienciaQueAportaOjoDeBifeSuperior)
 
 	}		
 
@@ -154,7 +158,7 @@ experiencia normal y el valor de experiencia maxima"{
 		
 		pedro.preparar(recetaPastaItaliana)
 	
-			assert.equals(pedro.experienciaQueLeAporto(recetaPastaItaliana),experienciaQueAportaPastaItaliana)
+			assert.equals(fabrica.experienciaQueLeAporto(pedro,recetaPastaItaliana),experienciaQueAportaPastaItaliana)
 
 	}	
 	
@@ -182,7 +186,7 @@ experiencia normal y el valor de experiencia maxima"{
 		
 		pedro.preparar(recetaPastaItaliana)
 		
-			assert.that(pedro.experienciaQueLeAporto(recetaOjoDeBifeConPapas)==experienciaQueAportaOjoDeBifeSuperior && pedro.experienciaQueLeAporto(recetaPastaItaliana)==experienciaQueAportaPastaItalianaSuperior)
+			assert.that(fabrica.experienciaQueLeAporto(pedro, recetaOjoDeBifeConPapas)==experienciaQueAportaOjoDeBifeSuperior && fabrica.experienciaQueLeAporto(pedro, recetaPastaItaliana)==experienciaQueAportaPastaItalianaSuperior)
 	}
 	
 //// Punto-4

@@ -59,26 +59,7 @@ class Cocinero{
 	
 	var property nivelDeAprendizaje  /*principiante | experto | chef */
 	
-	
-	/// MÉTODOS PARA TESTS ///
-	
-	method preparoReceta(receta) = preparaciones.any({comida=>comida.receta()==receta}) 
-	 
-	method experienciaQueLeAporto(receta){
-		
-		if(self.preparoReceta(receta)){
-			
-			return preparaciones.find({comida=>comida.receta() == receta}).experienciaQueAporta()
-			
-		}else{
-			throw new PreparacionFallida(message="no preparó esa receta")
-		}	
 
-	}
-	
-	
-	
-	
 	//MÉTODOS CON EFECTO 
 		
 	
